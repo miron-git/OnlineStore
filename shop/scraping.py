@@ -1,7 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
-import re
-# from main.settings import URL_SCRAPING_DOMAIN, URL_SCRAPING
+import random
+from transliterate import translit # транслитерация слага
+from django.utils.text import slugify # создание слагов
+ 
 
 def scraping():
     '''Скрейпинг'''
@@ -15,10 +17,8 @@ def scraping():
 
     soup = BeautifulSoup(text, 'html.parser')
     blocks = soup.select(".productionItem") # получаем список товаров по селектору productionItem
-    
-   
-    data_list=[]
 
+    data_list=[]
 
     for block in blocks:
         data = {}
@@ -32,12 +32,12 @@ def scraping():
         image = img_url + block.select_one('img')['src'] # url изображения, по img и атрибуту scr
         data['image'] = image
 
-        price = 'По запросу'
+        price = random.randint(50000,100000) # т.к на сайте цены по запросу, ради теста ставим рандом
         data['price'] = price
 
-
-        data_list.append(data)
-    
-        print(data)
+        slug = slugify(translit(name, language_code='ru', reversed=True)) # создаем слаг из поля name
+        data['slug'] = slug
         
-scraping()
+        data_list.append(data)
+
+    return data_list    
